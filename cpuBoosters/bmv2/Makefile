@@ -48,29 +48,29 @@ copy_files: $(BOOSTER_TARGET_DIR)
 	rsync -av $(BOOSTER_TARGET)/* $(BOOSTER_TARGET_DIR)
 
 booster_switch/fecBoosters:
-	cd ../fecBoosters && make copy_files
+	cd ../fecBoosters && make copy_files -j 1
 
 booster_switch/memcachedBooster:
-	cd ../memcached && make copy_files
+	cd ../memcached && make copy_files -j 1
 
 booster_switch/compressionBoosters:
-	cd ../vjCompressor && make copy_files
+	cd ../vjCompressor && make copy_files -j 1
 
 booster_switch: copy_files  $(BOOSTER_DEPS)
-	cd $(BOOSTER_TARGET_DIR) && make -j8
+	cd $(BOOSTER_TARGET_DIR) && make -j 1
 
 $(BOOSTER_TARGET_DIR):
 	rsync -av $(TEMPLATE_TARGET_DIR) $(BOOSTER_TARGET_DIR)
 
 configure: patches $(BOOSTER_DEPS) copy_files bmv2_clean_configure
-	cd $(BOOSTER_TARGET_DIR) && make -j8
+	cd $(BOOSTER_TARGET_DIR) && make -j 1
 
 bmv2_clean_configure: patches FORCE
 	-rm -fr $(BOOSTER_TARGET_DIR)
 	rsync -av $(TEMPLATE_TARGET_DIR) $(BOOSTER_TARGET_DIR)
 	rsync -av $(BOOSTER_TARGET)/* $(BOOSTER_TARGET_DIR)
-	cd $(BMV2_REPO) && ./autogen.sh && ./configure \
-		P4BOOSTERS_REPO=$(P4BOOSTERS_REPO) $(CONFIG_FLAGS) && autoconf && automake && make -j8
+	cd $(BMV2_REPO) && ./autogen.sh && ./configure --with-pi 'CXXFLAGS=-O0 -g' \
+		P4BOOSTERS_REPO=$(P4BOOSTERS_REPO) $(CONFIG_FLAGS) && autoconf && automake && make -j 1
 	- cd $(BOOSTER_TARGET_DIR) && make clean
 
 patches:
